@@ -4,8 +4,6 @@ import { createApp } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
 import FileSaver from 'file-saver';
 import * as XLSX from 'xlsx';
 
-const Api = 'http://122.116.23.30:9130';
-
 const YYYY = new Date().getFullYear();
 const MM = (new Date().getMonth() + 1).toString().padStart(2, '0');
 const dd = new Date().getDate().toString().padStart(2, '0');;
@@ -69,7 +67,7 @@ const app = Vue.createApp({
     methods: {
         // getStationList
         getStations() {
-            const getStationsApi = `${Api}/station`;
+            const getStationsApi = `/api/station`;
             this.isLoading = true;
             axios
                 .get(getStationsApi)
@@ -96,7 +94,7 @@ const app = Vue.createApp({
         // Real-time status
         // Real-time status - Get today's parking data
         getTodayAll() {
-            const getTodayAllApi = `${Api}/today/all`;
+            const getTodayAllApi = `/api/today/all`;
             this.isLoading = true;
             axios
                 .post(getTodayAllApi, { target: { stationId: this.stationId } })
@@ -108,7 +106,7 @@ const app = Vue.createApp({
         // Real-time status - Get today's EV parking data 
         getTodayElectric() {
             this.isLoading = true;
-            const getTodayElectricApi = `${Api}/today/electric`;
+            const getTodayElectricApi = `/api/today/electric`;
             axios
                 .post(getTodayElectricApi, { target: { stationId: this.stationId } })
                 .then((response) => {
@@ -123,7 +121,7 @@ const app = Vue.createApp({
         },
         // Period traffic flow - Search by month
         searchFlowMonth(searchFlowMonth) {
-            const searchFlowMonthApi = `${Api}/flow`;
+            const searchFlowMonthApi = `/api/flow`;
             const cantFindArea = document.querySelector('.cantFind-Area-flow');
             this.isLoading = true;
             this.searchFlowMonthData.stationId = this.stationId;
@@ -177,7 +175,7 @@ const app = Vue.createApp({
         },
         // Period traffic flow - Search by date
         searchFlowDate() {
-            const searchFlowDateApi = `${Api}/flowhour`;
+            const searchFlowDateApi = `/api/flowhour`;
             const cantFindArea = document.querySelector('.cantFind-Area-flow');
             this.isLoading = true;
             this.searchFlowDateData.stationId = this.stationId;
@@ -267,7 +265,7 @@ const app = Vue.createApp({
         },
         // TransactionDetails - search
         searchTransactionDetails(searchTransactionDetailsData) {
-            const getTransactionApi = `${Api}/transaction`;
+            const getTransactionApi = `/api/transaction`;
             const cantFindArea = document.querySelector('.cantFind-Area');
             this.isLoading = true;
             this.searchTransactionDetailsData.stationId = this.stationId;
@@ -321,7 +319,7 @@ const app = Vue.createApp({
         },
         // TransactionStatistic - search
         searchTransactionStatistic(searchTransactionStatisticsData) {
-            const searchTransactionStatisticApi = `${Api}/statistic`;
+            const searchTransactionStatisticApi = `/api/statistic`;
             const cantFindArea1 = document.querySelector('.cantFind-Area-transactionStatisticsAll');
             this.searchTransactionStatisticsData.stationId = this.stationId;
             if (this.searchTransactionStatisticsData.startTime > this.searchTransactionStatisticsData.endTime) {
