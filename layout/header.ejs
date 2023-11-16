@@ -1,0 +1,21 @@
+<div class="header my-3">
+    <nav>
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+            <button class="nav-link active" id="nav-instant-tab" data-bs-toggle="tab" data-bs-target="#nav-instant"
+                type="button" role="tab" aria-controls="nav-instant" aria-selected="true">即時現況</button>
+            <button class="nav-link" id="nav-vehicleFlowrate-tab" data-bs-toggle="tab"
+                data-bs-target="#nav-vehicleFlowrate" type="button" role="tab" aria-controls="nav-vehicleFlowrate"
+                aria-selected="false">時段流量</button>
+            <button class="nav-link" id="nav-transactionDetails-tab" data-bs-toggle="tab"
+                data-bs-target="#nav-transactionDetails" type="button" role="tab" aria-controls="nav-transactionDetails"
+                aria-selected="false">交易明細</button>
+            <button class="nav-link" id="nav-statistics-tab" data-bs-toggle="tab" data-bs-target="#nav-statistics"
+                type="button" role="tab" aria-controls="nav-statistics" aria-selected="false">交易統計</button>
+            <!-- <button class="btn btn-success ml-auto">登出</button> -->
+        </div>
+    </nav>
+    <label for="stationsDataList" class="form-label me-2">請選擇場站</label>
+    <select name="stationList" id="stationList" class="my-3" v-model="stationId" @change="getThisStation()">
+        <option v-for="item in stations" :value=item.id>{{item.type}}</option>
+    </select>
+</div>

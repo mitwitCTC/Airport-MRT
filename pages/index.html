@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/@vuepic/vue-datepicker@latest/dist/main.css">
+    <title>停車統計</title>
+</head>
+
+<body>
+    <div id="app">
+        <div class="container">
+            <%- include('./layout/header'); -%>
+            <div class="content">
+                <div class="tab-content" id="nav-tabContent">
+                    <!-- 即時現況 -->
+                    <div class="tab-pane fade show active" id="nav-instant" role="tabpanel"
+                        aria-labelledby="nav-instant-tab">
+                        <div class="isLoading d-flex justify-content-center" v-if="isLoading">
+                            <img src="../assets/images/loading.svg" alt="loading" class="w-25">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 col-sm-12">
+                                <h4 class="mb-3">本日全部車輛</h4>
+                                <ul class="instant">
+                                    <li class="fs-6">累積進出<br>
+                                        <span class="fs-4 text-dark">{{todayAllData.total}}</span>
+                                    </li>
+                                    <li class="fs-6">累積進場<br>
+                                        <span class="fs-4 text-dark">{{todayAllData.countInCar}}</span>
+                                    </li>
+                                    <li class="fs-6">累積出場<br>
+                                        <span class="fs-4 text-dark">{{todayAllData.countOutCar}}</span>
+                                    </li>
+                                    <li class="fs-6">未出場<br>
+                                        <span class="fs-4 text-dark">{{todayAllData.subtract}}</span>
+                                    </li>
+                                </ul>
+                                <div class="parkRatio mt-5 fs-6">
+                                    <p>總停車率</p>
+                                    <p class="fs-4 text-dark">{{Math.round(todayAllData.rate*100)/100}} %</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-sm-12">
+                                <h4 class="mb-3">本日電動車</h4>
+                                <ul class="instant">
+                                    <li class="fs-6">累積進出<br>
+                                        <span class="fs-4 text-dark">{{todayElectric.total}}</span>
+                                    </li>
+                                    <li class="fs-6">累積進場<br>
+                                        <span class="fs-4 text-dark">{{todayElectric.countInCar}}</span>
+                                    </li>
+                                    <li class="fs-6">累積出場<br>
+                                        <span class="fs-4 text-dark">{{todayElectric.countOutCar}}</span>
+                                    </li>
+                                    <li class="fs-6">未出場<br>
+                                        <span class="fs-4 text-dark">{{todayElectric.subtract}}</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 時段流量 -->
+                    <div class="tab-pane fade" id="nav-vehicleFlowrate" role="tabpanel"
+                        aria-labelledby="nav-vehicleFlowrate-tab">
+                        <div class="d-flex mb-2 align-items-center">
+                            <input type="month" class="pe-3 me-2" v-model="searchFlowMonthData.Time" @change="searchFlowMonth(searchFlowMonthData)">
+                            <button type="submit" class="btn btn-primary me-3 searchFlowMonth"
+                                @click="searchFlowMonth(searchFlowMonthData)">
+                                按月搜尋
+                            </button>
+                            <input type="date" class="pe-3 me-2" v-model="searchFlowDateData.Time" @change="searchFlowDate(searchFlowDateData)">
+                            <button type="submit" class="btn btn-primary" @click="searchFlowDate(searchFlowDateData)">
+                                按日搜尋
+                            </button>
+                            <button type="button" class="btn btn-outline-primary mb-1 ml-auto"
+                                @click="flowToExcel('xlsx')">匯出報表
+                            </button>
+                        </div>
+                        <div class="isLoading d-flex justify-content-center" v-if="isLoading">
+                            <img src="../assets/images/loading.svg" alt="loading" class="w-25">
+                        </div>
+                        <div class="table-responsive flowMonthTable d-none" id="flowMonthTable" style="height: 50vh;">
+                            <table class="table table-hover table-bordered text-center">
+                                <thead class="bg-light sticky-top">
+                                    <tr class="border-b">
+                                        <th colspan="12" class="fs-3">每日車輛進出統計表</th>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="4"></th>
+                                        <th colspan="4">月租</th>
+                                        <th colspan="4">臨停</th>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td colspan="4">日期</td>
+                                        <td colspan="2">進場</td>
+                                        <td colspan="2">出場</td>
+                                        <td colspan="2">進場</td>
+                                        <td colspan="2">出場</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="data in organizedMonthFlowData" class="border-b">
+                                        <td colspan="4">{{ data.date }}</td>
+                                        <td colspan="2">{{ data.monthIn ? data.monthIn : 0}}</td>
+                                        <td colspan="2">{{ data.monthOut ? data.monthOut : 0}}</td>
+                                        <td colspan="2">{{ data.tempIn ? data.tempIn : 0}}</td>
+                                        <td colspan="2">{{ data.tempOut ? data.tempOut : 0}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="table-responsive flowDateTable d-none" id="flowDateTable" style="height: 50vh;">
+                            <table class="table table-hover table-bordered text-center">
+                                <thead class="bg-light sticky-top">
+                                    <tr class="border-b">
+                                        <th colspan="12" class="fs-3">每小時車輛進出統計表</th>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="4"></th>
+                                        <th colspan="4">月租</th>
+                                        <th colspan="4">臨停</th>
+                                        <!-- <th colspan="4">總和</th> -->
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td colspan="4">時間</td>
+                                        <td colspan="2">進場</td>
+                                        <td colspan="2">出場</td>
+                                        <td colspan="2">進場</td>
+                                        <td colspan="2">出場</td>
+                                        <!-- <td colspan="2">進場</td>
+                                        <td colspan="2">出場</td> -->
+                                    </tr>
+                                </thead>
+                                <tbody v-for="flow in organizedDateFlowData">
+                                    <tr v-if="(flow.hour == '00' && flow.direction!=2)" class="border-b">
+                                        <td colspan="4">00:00~00:59</td>
+                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
+                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
+                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
+                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
+                                    </tr>
+                                    <tr v-if="(flow.hour == '01' && flow.direction!=2)" class="border-b">
+                                        <td colspan="4">01:00~01:59</td>
+                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
+                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
+                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
+                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
+                                    </tr>
+                                    <tr v-if="(flow.hour == '02' && flow.direction!=2)" class="border-b">
+                                        <td colspan="4">02:00~02:59</td>
+                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
+                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
+                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
+                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
+                                    </tr>
+                                    <tr v-if="(flow.hour == '03' && flow.direction!=2)" class="border-b">
+                                        <td colspan="4">03:00~03:59</td>
+                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
+                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
+                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
+                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
+                                    </tr>
+                                    <tr v-if="(flow.hour == '04' && flow.direction!=2)" class="border-b">
+                                        <td colspan="4">04:00~04:59</td>
+                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
+                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
+                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
+                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
+                                    </tr>
+                                    <tr v-if="(flow.hour == '05' && flow.direction!=2)" class="border-b">
+                                        <td colspan="4">05:00~05:59</td>
+                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
+                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
+                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
+                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
+                                    </tr>
+                                    <tr v-if="(flow.hour == '06' && flow.direction!=2)" class="border-b">
+                                        <td colspan="4">06:00~06:59</td>
+                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
+                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
+                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
+                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
+                                    </tr>
+                                    <tr v-if="(flow.hour == '07' && flow.direction!=2)" class="border-b">
+                                        <td colspan="4">07:00~07:59</td>
+                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
+                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
+                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
+                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
+                                    </tr>
+                                    <tr v-if="(flow.hour == '08' && flow.direction!=2)" class="border-b">
+                                        <td colspan="4">08:00~08:59</td>
+                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
+                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
+                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
+                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
+                                    </tr>
+                                    <tr v-if="(flow.hour == '09' && flow.direction!=2)" class="border-b">
+                                        <td colspan="4">09:00~09:59</td>
+                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
+                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
+                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
+                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
+                                    </tr>
+                                    <tr v-if="(flow.hour == '10' && flow.direction!=2)" class="border-b">
+                                        <td colspan="4">10:00~10:59</td>
+                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
+                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
+                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
+                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
+                                    </tr>
+                                    <tr v-if="(flow.hour == '11'  && flow.direction!=2)" class="border-b">
+                                        <td colspan="4">11:00~11:59</td>
+                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
+                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
+                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
+                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
+                                    </tr>
+                                    <tr v-if="(flow.hour == '12' && flow.direction!=2)" class="border-b">
+                                        <td colspan="4">12:00~12:59</td>
+                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
+                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
+                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
+                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
+                                    </tr>
+                                    <tr v-if="(flow.hour == '13' && flow.direction!=2)" class="border-b">
+                                        <td colspan="4">13:00~13:59</td>
+                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
+                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
+                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
+                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
+                                    </tr>
+                                    <tr v-if="(flow.hour == '14' && flow.direction!=2)" class="border-b">
+                                        <td colspan="4">14:00~14:59</td>
+                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
+                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
+                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
+                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
+                                    </tr>
+                                    <tr v-if="(flow.hour == '15' && flow.direction!=2)" class="border-b">
+                                        <td colspan="4">15:00~15:59</td>
+                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
+                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
+                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
+                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
+                                    </tr>
+                                    <tr v-if="(flow.hour == '16' && flow.direction!=2)" class="border-b">
+                                        <td colspan="4">16:00~16:59</td>
+                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
+                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
+                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
+                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
+                                    </tr>
+                                    <tr v-if="(flow.hour == '17' && flow.direction!=2)" class="border-b">
+                                        <td colspan="4">17:00~17:59</td>
+                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
+                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
+                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
+                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
+                                    </tr>
+                                    <tr v-if="(flow.hour == '18' && flow.direction!=2)" class="border-b">
+                                        <td colspan="4">18:00~18:59</td>
+                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
+                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
+                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
+                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
+                                    </tr>
+                                    <tr v-if="(flow.hour == '19' && flow.direction!=2)" class="border-b">
+                                        <td colspan="4">19:00~19:59</td>
+                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
+                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
+                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
+                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
+                                    </tr>
+                                    <tr v-if="(flow.hour == '20' && flow.direction!=2)" class="border-b">
+                                        <td colspan="4">20:00~20:59</td>
+                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
+                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
+                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
+                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
+                                    </tr>
+                                    <tr v-if="(flow.hour == '21' && flow.direction!=2)" class="border-b">
+                                        <td colspan="4">21:00~21:59</td>
+                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
+                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
+                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
+                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
+                                    </tr>
+                                    <tr v-if="(flow.hour == '22' && flow.direction!=2)" class="border-b">
+                                        <td colspan="4">22:00~22:59</td>
+                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
+                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
+                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
+                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
+                                    </tr>
+                                    <tr v-if="(flow.hour == '23' && flow.direction!=2)" class="border-b">
+                                        <td colspan="4">23:00~23:59</td>
+                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
+                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
+                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
+                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- 查無資料 -->
+                        <div class="cantFind-Area-flow">
+                            <h3 class="text-center h3">目前無資料</h3>
+                        </div>
+                    </div>
+                    <!-- 交易明細 -->
+                    <div class="tab-pane fade" id="nav-transactionDetails" role="tabpanel"
+                        aria-labelledby="nav-transactionDetails-tab">
+                        <div class="d-flex mb-2 align-items-center">
+                            <input type="date" class="pe-3 me-2" v-model="searchTransactionDetailsData.startTime" @change="searchTransactionDetails(searchTransactionDetailsData)">
+                            <input type="date" class="pe-3 me-2" v-model="searchTransactionDetailsData.endTime" @change="searchTransactionDetails(searchTransactionDetailsData)">
+                            <input type="checkbox" name="isElectric" id="isElectric" checked class="me-2"
+                                v-model="searchTransactionDetailsData.isElectric" @change="searchTransactionDetails(searchTransactionDetailsData)">電動車
+                            <button type="submit" class="btn btn-primary ml-3"
+                                @click="searchTransactionDetails(searchTransactionDetailsData)">
+                                搜尋
+                            </button>
+                            <button type="button" class="btn btn-outline-primary mb-1 ml-auto"
+                                @click="transactionDetailstoExcel('xlsx')">匯出報表
+                            </button>
+                        </div>
+                        <div class="isLoading d-flex justify-content-center" v-if="isLoading">
+                            <img src="../assets/images/loading.svg" alt="loading" class="w-25">
+                        </div>
+                        <div class="table-responsive" id="transactionDetailsTable">
+                            <table class="table table-hover table-bordered text-center fs-6" style="height: 50vh;">
+                                <thead class="bg-light sticky-top">
+                                    <th>車號</th>
+                                    <th>車種</th>
+                                    <th>身分別</th>
+                                    <th>電動車</th>
+                                    <th>入場時間</th>
+                                    <th>出場時間</th>
+                                    <th>停留時間(分鐘)</th>
+                                    <th>繳費金額</th>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="transactionDetail in transactionDetails" class="align-middle" :key="transactionDetail.id">
+                                        <td class="align-middle">{{ transactionDetail.plate }}</td>
+                                        <td class="align-middle">{{ transactionDetail.priceClass }}</td>
+                                        <td class="align-middle">{{ transactionDetail.carType==0? '臨停' : '月租'}}</td>
+                                        <td class="align-middle">{{ transactionDetail.ELECTRIC==1 ? '是' : '否'}}</td>
+                                        <td class="align-middle">{{ transactionDetail.ENTERTIME }}</td>
+                                        <td class="align-middle">{{ transactionDetail.transTime }}</td>
+                                        <td class="align-middle">{{ Math.round(transactionDetail.STAY*60) }}</td>
+                                        <td class="align-middle">{{ transactionDetail.amount }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- 查無資料 -->
+                        <div class="cantFind-Area">
+                            <h3 class="text-center h3">目前無資料</h3>
+                        </div>
+                    </div>
+                    <!-- 交易統計 -->
+                    <div class="tab-pane fade" id="nav-statistics" role="tabpanel" aria-labelledby="nav-statistics-tab">
+                        <div class="d-flex mb-2 align-items-center">
+                            <input type="date" class="pe-3 me-2" v-model="searchTransactionStatisticsData.startTime" @change="searchTransactionStatistic(searchTransactionStatisticsData)">
+                            <input type="date" class="pe-3 me-2" v-model="searchTransactionStatisticsData.endTime" @change="searchTransactionStatistic(searchTransactionStatisticsData)">
+                            <input type="checkbox" name="isElectric" id="isElectric" checked class="me-2"
+                                v-model="searchTransactionStatisticsData.isElectric" @change="searchTransactionStatistic(searchTransactionStatisticsData)">電動車
+                            <button type="submit" class="btn btn-primary ms-3"
+                                @click="searchTransactionStatistic(searchTransactionStatisticsData)">
+                                搜尋
+                            </button>
+                            <button type="button" class="btn btn-outline-primary mb-1 ml-auto"
+                                @click="transactionStatisticTabletoExcel('xlsx')">匯出報表
+                            </button>
+                        </div>
+                        <div class="isLoading d-flex justify-content-center" v-if="isLoading">
+                            <img src="../assets/images/loading.svg" alt="loading" class="w-25">
+                        </div>
+                        <div class="table-responsive" id="transactionStatisticTable" style="height: 50vh;">
+                            <table class="table table-hover table-bordered text-center fs-5" >
+                                <thead class="bg-light sticky-top">
+                                    <th>日期</th>
+                                    <th>計數</th>
+                                    <th>總停留分鐘</th>
+                                    <th>總繳費金額</th>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="transactionStatistics in transactionStatisticsAll" class="align-middle">
+                                        <td class="align-middle">{{ transactionStatistics.TRANSDATE }}</td>
+                                        <td class="align-middle">{{ transactionStatistics.countPlate }}</td>
+                                        <td class="align-middle">{{ Math.round(transactionStatistics.totalSTAY*60) }}
+                                        </td>
+                                        <td class="align-middle">{{ transactionStatistics.totalAmount }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- 查無資料 -->
+                        <div class="cantFind-Area-transactionStatisticsAll">
+                            <h3 class="text-center h3">目前無資料</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@next"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ"
+        crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/vue@latest"></script>
+    <!-- 匯出 excel -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.js"></script> -->
+    <!-- <script src="https://cdn.bootcdn.net/ajax/libs/FileSaver.js/2.0.5/FileSaver.js"></script> -->
+    <!-- <script src="http://cdn.jsdelivr.net/g/filesaver.js"></script>
+    <script src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script> -->
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/axios/0.9.1/axios.min.js'
+        integrity='sha512-Xk3wWei2TGrsh9kDSBKUMIjw/86sLUvhtnv9f7fOuIwhhiUTKz8szkWkzHthrM5Bb3Bu9idSzkxOrkzhcneuiw=='
+        crossorigin='anonymous'></script>
+    <script type="module" src="../main.js"></script>
+</body>
+
+</html>
