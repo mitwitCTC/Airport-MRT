@@ -35,6 +35,7 @@ const app = Vue.createApp({
                 },
             ],
             stationId: '',
+            station: '',
             // 即時現況
             todayAllData: [],
             todayElectric: [],
@@ -75,6 +76,7 @@ const app = Vue.createApp({
                     this.isLoading = false;
                     this.stations = response.data;
                     this.stationId = this.stations[0].id; // Set first station as default
+                    this.station = this.stations[0].type;
                     // Real-time status
                     setInterval(this.getTodayAll(), 1800000);
                     setInterval(this.getTodayElectric(), 1800000);
@@ -83,13 +85,20 @@ const app = Vue.createApp({
         getThisStation() {
             this.getTodayAll();
             this.getTodayElectric();
-            if (flowMonthTable.classList[2] == 'block'){
+            if (flowMonthTable.classList[2] == 'block') {
                 this.searchFlowMonth();
             } else {
                 this.searchFlowDate();
             }
             this.searchTransactionDetails();
             this.searchTransactionStatistic();
+            const foundStation = this.stations.find(station => station.id === this.stationId);
+
+            if (foundStation) {
+                this.station = foundStation.type;
+            } else {
+                console.warn("ID not found in the stations array");
+            }
         },
         // Real-time status
         // Real-time status - Get today's parking data
@@ -232,7 +241,7 @@ const app = Vue.createApp({
                 let wb = XLSX.utils.table_to_book(document.querySelector('#flowMonthTable'), xlsxParam);
                 const wbout = XLSX.write(wb, { booklype: 'xlsx', bookSST: true, type: 'array' });
                 try {
-                    FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), `${this.searchFlowMonthData.Time} 時段流量報表.xlsx`);
+                    FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), `${this.station} ${this.searchFlowMonthData.Time} 時段流量報表.xlsx`);
                 } catch (e) {
                     if (typeof console !== undefined) {
                         console.log(e, wbout);
@@ -245,7 +254,7 @@ const app = Vue.createApp({
                 let wb = XLSX.utils.table_to_book(document.querySelector('#flowDateTable'), xlsxParam);
                 const wbout = XLSX.write(wb, { booklype: 'xlsx', bookSST: true, type: 'array' });
                 try {
-                    FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), `${this.searchFlowDateData.Time} 時段流量報表.xlsx`);
+                    FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), `${this.station} ${this.searchFlowDateData.Time} 時段流量報表.xlsx`);
                 } catch (e) {
                     if (typeof console !== undefined) {
                         console.log(e, wbout);
@@ -295,7 +304,7 @@ const app = Vue.createApp({
             let wb = XLSX.utils.table_to_book(document.querySelector('#transactionDetailsTable'), xlsxParam);
             const wbout = XLSX.write(wb, { booklype: 'xlsx', bookSST: true, type: 'array' });
             try {
-                FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), `${this.searchTransactionDetailsData.startTime} ~ ${this.searchTransactionDetailsData.endTime} 交易明細報表.xlsx`);
+                FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), `${this.station} ${this.searchTransactionDetailsData.startTime} ~ ${this.searchTransactionDetailsData.endTime} 交易明細報表.xlsx`);
             } catch (e) {
                 if (typeof console !== undefined) {
                     console.log(e, wbout);
@@ -347,7 +356,7 @@ const app = Vue.createApp({
             let wb = XLSX.utils.table_to_book(document.querySelector('#transactionStatisticTable'), xlsxParam);
             const wbout = XLSX.write(wb, { booklype: 'xlsx', bookSST: true, type: 'array' });
             try {
-                FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), `${this.searchTransactionStatisticsData.startTime} ~ ${this.searchTransactionStatisticsData.endTime} 交易統計報表.xlsx`);
+                FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), `${this.station} ${this.searchTransactionStatisticsData.startTime} ~ ${this.searchTransactionStatisticsData.endTime} 交易統計報表.xlsx`);
             } catch (e) {
                 if (typeof console !== undefined) {
                     console.log(e, wbout);
@@ -359,7 +368,7 @@ const app = Vue.createApp({
     mounted() {
         this.getStations();
         this.thisMonthFlow();
-        this.thisDateFlow(); 
+        this.thisDateFlow();
         this.thisDateTransactionDetails();
         this.checkIsElectric();
         this.istodayTransactionStatistic();
