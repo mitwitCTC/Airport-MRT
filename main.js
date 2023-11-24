@@ -161,16 +161,14 @@ const app = Vue.createApp({
                         }
 
                         // Find if there is already data for the day, if not, create a new object
-                        const existingEntry = acc.find((item) => item.date === TRANSDATE);
-                        if (existingEntry) {
-                            existingEntry[type] = countPlate;
-                        } else {
-                            const newEntry = {
-                                date: TRANSDATE,
-                                [type]: countPlate,
-                            };
-                            acc.push(newEntry);
+                        let existingHourEntry = acc.find((item) => item.date === TRANSDATE);
+                        if (!existingHourEntry) {
+                            existingHourEntry = { date: TRANSDATE, monthIn: 0, monthOut: 0, tempIn: 0, tempOut: 0 };
+                            acc.push(existingHourEntry);
                         }
+
+                        // set the count
+                        existingHourEntry[type] = countPlate;
                         return acc;
                     }, []);
                     this.organizedMonthFlowData.length > 0
@@ -215,16 +213,14 @@ const app = Vue.createApp({
                         }
 
                         // Find if there is already data for the hour, if not, create a new object
-                        const existingHourEntry = acc.find((item) => item.hour === TRANSHOUR);
-                        if (existingHourEntry) {
-                            existingHourEntry[type] = countPlate;
-                        } else {
-                            const newHourEntry = {
-                                hour: TRANSHOUR,
-                                [type]: countPlate,
-                            };
-                            acc.push(newHourEntry);
+                        let existingHourEntry = acc.find((item) => item.hour === TRANSHOUR);
+                        if (!existingHourEntry) {
+                            existingHourEntry = { hour: TRANSHOUR, monthIn: 0, monthOut: 0, tempIn: 0, tempOut: 0 };
+                            acc.push(existingHourEntry);
                         }
+
+                        // set the count
+                        existingHourEntry[type] = countPlate;
 
                         return acc;
                     }, []);

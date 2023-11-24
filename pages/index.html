@@ -93,25 +93,30 @@
                                         <th colspan="12" class="fs-3">每日車輛進出統計表</th>
                                     </tr>
                                     <tr>
-                                        <th colspan="4"></th>
+                                        <th colspan="2"></th>
                                         <th colspan="4">月租</th>
                                         <th colspan="4">臨停</th>
+                                        <th colspan="2">統計</th>
                                     </tr>
                                     <tr class="border-b">
-                                        <td colspan="4">日期</td>
+                                        <td colspan="2">日期</td>
                                         <td colspan="2">進場</td>
                                         <td colspan="2">出場</td>
                                         <td colspan="2">進場</td>
                                         <td colspan="2">出場</td>
+                                        <td>進場</td>
+                                        <td>出場</td>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="data in organizedMonthFlowData" class="border-b">
-                                        <td colspan="4">{{ data.date }}</td>
-                                        <td colspan="2">{{ data.monthIn ? data.monthIn : 0}}</td>
-                                        <td colspan="2">{{ data.monthOut ? data.monthOut : 0}}</td>
-                                        <td colspan="2">{{ data.tempIn ? data.tempIn : 0}}</td>
-                                        <td colspan="2">{{ data.tempOut ? data.tempOut : 0}}</td>
+                                        <td colspan="2">{{ data.date }}</td>
+                                        <td colspan="2">{{ data.monthIn }}</td>
+                                        <td colspan="2">{{ data.monthOut }}</td>
+                                        <td colspan="2">{{ data.tempIn }}</td>
+                                        <td colspan="2">{{ data.tempOut }}</td>
+                                        <td>{{ data.monthIn + data.tempIn }}</td>
+                                        <td>{{ data.monthOut + data.tempOut }}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -124,189 +129,30 @@
                                         <th colspan="12" class="fs-3">每小時車輛進出統計表</th>
                                     </tr>
                                     <tr>
-                                        <th colspan="4"></th>
+                                        <th colspan="2"></th>
                                         <th colspan="4">月租</th>
                                         <th colspan="4">臨停</th>
-                                        <!-- <th colspan="4">總和</th> -->
+                                        <th colspan="2">統計</th>
                                     </tr>
                                     <tr class="border-b">
-                                        <td colspan="4">時間</td>
+                                        <td colspan="2">時間</td>
                                         <td colspan="2">進場</td>
                                         <td colspan="2">出場</td>
                                         <td colspan="2">進場</td>
                                         <td colspan="2">出場</td>
-                                        <!-- <td colspan="2">進場</td>
-                                        <td colspan="2">出場</td> -->
+                                        <td>進場</td>
+                                        <td>出場</td>
                                     </tr>
                                 </thead>
                                 <tbody v-for="flow in organizedDateFlowData">
-                                    <tr v-if="(flow.hour == '00' && flow.direction!=2)" class="border-b">
-                                        <td colspan="4">00:00~00:59</td>
-                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
-                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
-                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
-                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
-                                    </tr>
-                                    <tr v-if="(flow.hour == '01' && flow.direction!=2)" class="border-b">
-                                        <td colspan="4">01:00~01:59</td>
-                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
-                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
-                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
-                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
-                                    </tr>
-                                    <tr v-if="(flow.hour == '02' && flow.direction!=2)" class="border-b">
-                                        <td colspan="4">02:00~02:59</td>
-                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
-                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
-                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
-                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
-                                    </tr>
-                                    <tr v-if="(flow.hour == '03' && flow.direction!=2)" class="border-b">
-                                        <td colspan="4">03:00~03:59</td>
-                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
-                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
-                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
-                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
-                                    </tr>
-                                    <tr v-if="(flow.hour == '04' && flow.direction!=2)" class="border-b">
-                                        <td colspan="4">04:00~04:59</td>
-                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
-                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
-                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
-                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
-                                    </tr>
-                                    <tr v-if="(flow.hour == '05' && flow.direction!=2)" class="border-b">
-                                        <td colspan="4">05:00~05:59</td>
-                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
-                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
-                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
-                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
-                                    </tr>
-                                    <tr v-if="(flow.hour == '06' && flow.direction!=2)" class="border-b">
-                                        <td colspan="4">06:00~06:59</td>
-                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
-                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
-                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
-                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
-                                    </tr>
-                                    <tr v-if="(flow.hour == '07' && flow.direction!=2)" class="border-b">
-                                        <td colspan="4">07:00~07:59</td>
-                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
-                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
-                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
-                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
-                                    </tr>
-                                    <tr v-if="(flow.hour == '08' && flow.direction!=2)" class="border-b">
-                                        <td colspan="4">08:00~08:59</td>
-                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
-                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
-                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
-                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
-                                    </tr>
-                                    <tr v-if="(flow.hour == '09' && flow.direction!=2)" class="border-b">
-                                        <td colspan="4">09:00~09:59</td>
-                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
-                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
-                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
-                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
-                                    </tr>
-                                    <tr v-if="(flow.hour == '10' && flow.direction!=2)" class="border-b">
-                                        <td colspan="4">10:00~10:59</td>
-                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
-                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
-                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
-                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
-                                    </tr>
-                                    <tr v-if="(flow.hour == '11'  && flow.direction!=2)" class="border-b">
-                                        <td colspan="4">11:00~11:59</td>
-                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
-                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
-                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
-                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
-                                    </tr>
-                                    <tr v-if="(flow.hour == '12' && flow.direction!=2)" class="border-b">
-                                        <td colspan="4">12:00~12:59</td>
-                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
-                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
-                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
-                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
-                                    </tr>
-                                    <tr v-if="(flow.hour == '13' && flow.direction!=2)" class="border-b">
-                                        <td colspan="4">13:00~13:59</td>
-                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
-                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
-                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
-                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
-                                    </tr>
-                                    <tr v-if="(flow.hour == '14' && flow.direction!=2)" class="border-b">
-                                        <td colspan="4">14:00~14:59</td>
-                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
-                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
-                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
-                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
-                                    </tr>
-                                    <tr v-if="(flow.hour == '15' && flow.direction!=2)" class="border-b">
-                                        <td colspan="4">15:00~15:59</td>
-                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
-                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
-                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
-                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
-                                    </tr>
-                                    <tr v-if="(flow.hour == '16' && flow.direction!=2)" class="border-b">
-                                        <td colspan="4">16:00~16:59</td>
-                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
-                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
-                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
-                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
-                                    </tr>
-                                    <tr v-if="(flow.hour == '17' && flow.direction!=2)" class="border-b">
-                                        <td colspan="4">17:00~17:59</td>
-                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
-                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
-                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
-                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
-                                    </tr>
-                                    <tr v-if="(flow.hour == '18' && flow.direction!=2)" class="border-b">
-                                        <td colspan="4">18:00~18:59</td>
-                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
-                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
-                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
-                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
-                                    </tr>
-                                    <tr v-if="(flow.hour == '19' && flow.direction!=2)" class="border-b">
-                                        <td colspan="4">19:00~19:59</td>
-                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
-                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
-                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
-                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
-                                    </tr>
-                                    <tr v-if="(flow.hour == '20' && flow.direction!=2)" class="border-b">
-                                        <td colspan="4">20:00~20:59</td>
-                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
-                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
-                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
-                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
-                                    </tr>
-                                    <tr v-if="(flow.hour == '21' && flow.direction!=2)" class="border-b">
-                                        <td colspan="4">21:00~21:59</td>
-                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
-                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
-                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
-                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
-                                    </tr>
-                                    <tr v-if="(flow.hour == '22' && flow.direction!=2)" class="border-b">
-                                        <td colspan="4">22:00~22:59</td>
-                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
-                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
-                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
-                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
-                                    </tr>
-                                    <tr v-if="(flow.hour == '23' && flow.direction!=2)" class="border-b">
-                                        <td colspan="4">23:00~23:59</td>
-                                        <td colspan="2">{{ flow.monthIn ? flow.monthIn :0 }}</td>
-                                        <td colspan="2">{{ flow.monthOut ? flow.monthOut : 0 }}</td>
-                                        <td colspan="2">{{ flow.tempIn ? flow.tempIn :0 }}</td>
-                                        <td colspan="2">{{ flow.tempOut ? flow.tempOut :0 }}</td>
+                                    <tr v-if="flow.direction!=2" class="border-b">
+                                        <td colspan="2">{{flow.hour}}:00~{{flow.hour}}:59</td>
+                                        <td colspan="2">{{ flow.monthIn }}</td>
+                                        <td colspan="2">{{ flow.monthOut  }}</td>
+                                        <td colspan="2">{{ flow.tempIn }}</td>
+                                        <td colspan="2">{{ flow.tempOut }}</td>
+                                        <td>{{ flow.monthIn + flow.tempIn }}</td>
+                                        <td>{{ flow.monthOut + flow.tempOut }}</td>
                                     </tr>
                                 </tbody>
                             </table>
