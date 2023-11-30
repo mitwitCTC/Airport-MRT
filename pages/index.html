@@ -205,12 +205,16 @@
                                         <td class="align-middle">{{ Math.round(transactionDetail.STAY*60) }}</td>
                                         <td class="align-middle">{{ transactionDetail.amount }}</td>
                                     </tr>
+                                    <tr>
+                                        <td colspan="8">
+                                            <!-- 查無資料 -->
+                                            <div class="cantFind-Area">
+                                                <h3 class="text-center h3">目前無資料</h3>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
-                        </div>
-                        <!-- 查無資料 -->
-                        <div class="cantFind-Area">
-                            <h3 class="text-center h3">目前無資料</h3>
                         </div>
                     </div>
                     <!-- 交易統計 -->
@@ -247,18 +251,75 @@
                                         </td>
                                         <td class="align-middle">{{ transactionStatistics.totalAmount }}</td>
                                     </tr>
+                                    <tr>
+                                        <td colspan="4">
+                                            <!-- 查無資料 -->
+                                            <div class="cantFind-Area-transactionStatisticsAll">
+                                                <h3 class="text-center h3">目前無資料</h3>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
-                        <!-- 查無資料 -->
-                        <div class="cantFind-Area-transactionStatisticsAll">
-                            <h3 class="text-center h3">目前無資料</h3>
+                    </div>
+                    <!-- 過夜車查詢 -->
+                    <div class="tab-pane fade" id="nav-overnight" role="tabpanel" aria-labelledby="nav-overnight-tab">
+                        <div class="d-flex mb-3 d-flex-column-sm">
+                            <div class="form-floating">
+                                <input type="number" min="1" class="form-control" id="floatingInput" placeholder="請輸入停放天數"
+                                    v-model="searchOvernightData.countDay" @change="searchOvernight">
+                                <label for="floatingInput">停放天數</label>
+                            </div>
+                            <div class="form-floating mx-2">
+                                <select class="form-select" id="typeOvernight" v-model="searchOvernightData.carType"
+                                    @change="searchOvernight">
+                                    <option selected disabled>票卡種類</option>
+                                    <option value="1">月租</option>
+                                    <option value="0">臨停</option>
+                                </select>
+                                <label for="floatingSelect">票卡種類</label>
+                            </div>
+                            <div class="form-check d-flex align-items-center mx-1">
+                                <input class="form-check-input" type="checkbox" id="isElectricOvernight" checked
+                                    v-model="searchOvernightData.isElectric" @change="searchOvernight">
+                                <label class="form-check-label" for="isElectricOvernight">
+                                    電動車
+                                </label>
+                            </div>
+                            <button class="btn btn-sm btn-primary" @click="searchOvernight">查詢</button>
+                        </div>
+                        <div class="isLoading d-flex justify-content-center" v-if="isLoading">
+                            <img src="../assets/images/loading.svg" alt="loading" class="w-25">
+                        </div>
+                        <div class="table-responsive" id="transactionStatisticTable" style="height: 50vh;">
+                            <table class="table table-hover table-bordered text-center fs-5">
+                                <thead class="bg-light sticky-top">
+                                    <th>車號</th>
+                                    <th>入場時間</th>
+                                    <th>停放天數</th>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="overnight in overnightData" class="align-middle">
+                                        <td class="align-middle">{{ overnight.plate }}</td>
+                                        <td class="align-middle">{{ overnight.transTime }}</td>
+                                        <td class="align-middle">{{ overnight.countDay }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3">
+                                            <!-- 查無資料 -->
+                                            <div class="cantFind-Area-overnight">
+                                                <h3 class="text-center h3">目前無資料</h3>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
     </div>
 
     <script src="https://unpkg.com/vue@next"></script>

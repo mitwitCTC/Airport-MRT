@@ -25,23 +25,23 @@ function moveOutputPlugin() {
 export default defineConfig({
   // base 的寫法：
   // base: '/Repository 的名稱/'
-  base: '/Airport-MRT/',
+  base: '/',
   plugins: [
     liveReload(['./layout/**/*.ejs', './pages/**/*.ejs', './pages/**/*.html']),
     ViteEjsPlugin(),
     moveOutputPlugin(),
   ],
-  server: {
-    // 啟動 server 時預設開啟的頁面
-    open: 'pages/index.html',
-    proxy: {
-      "/api": {
-        target: "http://122.116.23.30:9130",
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ""),
-      },
-    },
-  },
+  // server: {
+  //   // 啟動 server 時預設開啟的頁面
+  //   open: 'pages/index.html',
+  //   proxy: {
+  //     "/api": {
+  //       target: "http://122.116.23.30:9130",
+  //       changeOrigin: true,
+  //       rewrite: (path) => path.replace(/^\/api/, ""),
+  //     },
+  //   },
+  // },
   build: {
     rollupOptions: {
       input: Object.fromEntries(

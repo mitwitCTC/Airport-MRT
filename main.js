@@ -8,6 +8,8 @@ const YYYY = new Date().getFullYear();
 const MM = (new Date().getMonth() + 1).toString().padStart(2, '0');
 const dd = new Date().getDate().toString().padStart(2, '0');;
 
+const Api = 'http://122.116.23.30:9130';
+
 const app = Vue.createApp({
     data() {
         return {
@@ -63,12 +65,20 @@ const app = Vue.createApp({
                 startTime: "",
                 endTime: ""
             },
+            // 過夜車
+            searchOvernightData: {
+                isElectric: true,
+                countDay: "",
+                carType: '1',
+                countDay: 1,
+            },
+            overnightData: [],
         }
     },
     methods: {
         // getStationList
         getStations() {
-            const getStationsApi = `/api/station`;
+            const getStationsApi = `${Api}/station`;
             this.isLoading = true;
             axios
                 .get(getStationsApi)
@@ -92,6 +102,7 @@ const app = Vue.createApp({
             }
             this.searchTransactionDetails();
             this.searchTransactionStatistic();
+            this.searchOvernight();
             const foundStation = this.stations.find(station => station.id === this.stationId);
 
             if (foundStation) {
@@ -103,7 +114,7 @@ const app = Vue.createApp({
         // Real-time status
         // Real-time status - Get today's parking data
         getTodayAll() {
-            const getTodayAllApi = `/api/today/all`;
+            const getTodayAllApi = `${Api}/today/all`;
             this.isLoading = true;
             axios
                 .post(getTodayAllApi, { target: { stationId: this.stationId } })
@@ -115,7 +126,7 @@ const app = Vue.createApp({
         // Real-time status - Get today's EV parking data 
         getTodayElectric() {
             this.isLoading = true;
-            const getTodayElectricApi = `/api/today/electric`;
+            const getTodayElectricApi = `${Api}/today/electric`;
             axios
                 .post(getTodayElectricApi, { target: { stationId: this.stationId } })
                 .then((response) => {
@@ -130,7 +141,7 @@ const app = Vue.createApp({
         },
         // Period traffic flow - Search by month
         searchFlowMonth(searchFlowMonth) {
-            const searchFlowMonthApi = `/api/flow`;
+            const searchFlowMonthApi = `${Api}/flow`;
             const cantFindArea = document.querySelector('.cantFind-Area-flow');
             this.isLoading = true;
             this.searchFlowMonthData.stationId = this.stationId;
@@ -182,7 +193,7 @@ const app = Vue.createApp({
         },
         // Period traffic flow - Search by date
         searchFlowDate() {
-            const searchFlowDateApi = `/api/flowhour`;
+            const searchFlowDateApi = `${Api}/flowhour`;
             const cantFindArea = document.querySelector('.cantFind-Area-flow');
             this.isLoading = true;
             this.searchFlowDateData.stationId = this.stationId;
@@ -270,7 +281,7 @@ const app = Vue.createApp({
         },
         // TransactionDetails - search
         searchTransactionDetails(searchTransactionDetailsData) {
-            const getTransactionApi = `/api/transaction`;
+            const getTransactionApi = `${Api}/transaction`;
             const cantFindArea = document.querySelector('.cantFind-Area');
             this.isLoading = true;
             this.searchTransactionDetailsData.stationId = this.stationId;
@@ -324,7 +335,7 @@ const app = Vue.createApp({
         },
         // TransactionStatistic - search
         searchTransactionStatistic(searchTransactionStatisticsData) {
-            const searchTransactionStatisticApi = `/api/statistic`;
+            const searchTransactionStatisticApi = `${Api}/statistic`;
             const cantFindArea1 = document.querySelector('.cantFind-Area-transactionStatisticsAll');
             this.searchTransactionStatisticsData.stationId = this.stationId;
             if (this.searchTransactionStatisticsData.startTime > this.searchTransactionStatisticsData.endTime) {
@@ -360,6 +371,27 @@ const app = Vue.createApp({
             }
             return wbout
         },
+        // search cars parked overnight
+        searchOvernight() {
+            this.isLoading = true;
+            this.searchOvernightData.stationId = this.stationId;
+            if (this.searchOvernightData.days === "") {
+                this.isLoading = false;
+                alert('停放天數不得為空！');
+            } else {
+                const cantFindArea = document.querySelector('.cantFind-Area-overnight');
+                const searchOvernighApi = `${Api}/overNight`;
+                axios
+                    .post(searchOvernighApi, { target: this.searchOvernightData })
+                    .then((response) => {
+                        this.overnightData = response.data;
+                        this.isLoading = false;
+                        this.overnightData.length > 0
+                            ? cantFindArea.classList.remove('block')
+                            : cantFindArea.classList.add('block');
+                    })
+            }
+        }
     },
     mounted() {
         this.getStations();
