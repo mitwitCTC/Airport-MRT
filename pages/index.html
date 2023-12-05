@@ -93,30 +93,33 @@
                                         <th colspan="12" class="fs-3">每日車輛進出統計表</th>
                                     </tr>
                                     <tr>
-                                        <th colspan="2"></th>
+                                        <th></th>
                                         <th colspan="4">月租</th>
                                         <th colspan="4">臨停</th>
                                         <th colspan="2">統計</th>
+                                        <th></th>
                                     </tr>
                                     <tr class="border-b">
-                                        <td colspan="2">日期</td>
+                                        <td>日期</td>
                                         <td colspan="2">進場</td>
                                         <td colspan="2">出場</td>
                                         <td colspan="2">進場</td>
                                         <td colspan="2">出場</td>
                                         <td>進場</td>
                                         <td>出場</td>
+                                        <td>使用率</td>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="data in organizedMonthFlowData" class="border-b">
-                                        <td colspan="2">{{ data.date }}</td>
+                                        <td>{{ data.date }}</td>
                                         <td colspan="2">{{ data.monthIn }}</td>
                                         <td colspan="2">{{ data.monthOut }}</td>
                                         <td colspan="2">{{ data.tempIn }}</td>
                                         <td colspan="2">{{ data.tempOut }}</td>
                                         <td>{{ data.monthIn + data.tempIn }}</td>
                                         <td>{{ data.monthOut + data.tempOut }}</td>
+                                        <td>{{ Math.round(((data.monthIn + data.tempIn)/totalSpace)*10000)/100 }} %</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -129,30 +132,33 @@
                                         <th colspan="12" class="fs-3">每小時車輛進出統計表</th>
                                     </tr>
                                     <tr>
-                                        <th colspan="2"></th>
+                                        <th></th>
                                         <th colspan="4">月租</th>
                                         <th colspan="4">臨停</th>
                                         <th colspan="2">統計</th>
+                                        <th></th>
                                     </tr>
                                     <tr class="border-b">
-                                        <td colspan="2">時間</td>
+                                        <td>時間</td>
                                         <td colspan="2">進場</td>
                                         <td colspan="2">出場</td>
                                         <td colspan="2">進場</td>
                                         <td colspan="2">出場</td>
                                         <td>進場</td>
                                         <td>出場</td>
+                                        <td>使用率</td>
                                     </tr>
                                 </thead>
                                 <tbody v-for="flow in organizedDateFlowData">
                                     <tr v-if="flow.direction!=2" class="border-b">
-                                        <td colspan="2">{{flow.hour}}:00~{{flow.hour}}:59</td>
+                                        <td>{{flow.hour}}:00~{{flow.hour}}:59</td>
                                         <td colspan="2">{{ flow.monthIn }}</td>
                                         <td colspan="2">{{ flow.monthOut  }}</td>
                                         <td colspan="2">{{ flow.tempIn }}</td>
                                         <td colspan="2">{{ flow.tempOut }}</td>
                                         <td>{{ flow.monthIn + flow.tempIn }}</td>
                                         <td>{{ flow.monthOut + flow.tempOut }}</td>
+                                        <td>{{ Math.round(((flow.monthIn + flow.tempIn)/totalSpace)*10000)/100 }} %</td>
                                     </tr>
                                 </tbody>
                             </table>

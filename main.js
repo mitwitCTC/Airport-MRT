@@ -38,6 +38,7 @@ const app = Vue.createApp({
             ],
             stationId: '',
             station: '',
+            totalSpace: null,
             // 即時現況
             todayAllData: [],
             todayElectric: [],
@@ -145,6 +146,8 @@ const app = Vue.createApp({
             const cantFindArea = document.querySelector('.cantFind-Area-flow');
             this.isLoading = true;
             this.searchFlowMonthData.stationId = this.stationId;
+            const foundStation = this.stations.find(station => station.id === this.stationId);
+            this.totalSpace = foundStation.totalSpace;
             axios
                 .post(searchFlowMonthApi, { target: this.searchFlowMonthData })
                 .then((response) => {
@@ -197,6 +200,8 @@ const app = Vue.createApp({
             const cantFindArea = document.querySelector('.cantFind-Area-flow');
             this.isLoading = true;
             this.searchFlowDateData.stationId = this.stationId;
+            const foundStation = this.stations.find(station => station.id === this.stationId);
+            this.totalSpace = foundStation.totalSpace;
             axios
                 .post(searchFlowDateApi, { target: this.searchFlowDateData })
                 .then((response) => {
